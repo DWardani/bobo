@@ -1,0 +1,14 @@
+import bobo
+from wsgiref.simple_server import make_server
+
+@bobo.query('/')
+def hello():
+    return 'Hello, World!'
+
+if __name__ == '__main__':
+    # Specify where the resources (functions) are located using __name__
+    httpd = make_server('', 8080, bobo.Application(bobo_resources=__name__))
+    print("Serving on port 8080...")
+    print("http://localhost:8080")
+    httpd.serve_forever()
+

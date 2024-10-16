@@ -1,0 +1,132 @@
+import bobo
+from wsgiref.simple_server import make_server
+from urllib.parse import parse_qs
+
+# A simple in-memory user database
+users = {
+    "user": "password"  # Username: user, Password: password
+}
+
+@bobo.query('/')
+def login_form():
+    return '''
+    <html>
+        <head>
+            <title>Login Page</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f2f2f2;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    width: 300px;
+                    margin: 100px auto;
+                    padding: 20px;
+                    background-color: white;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    border-radius: 5px;
+                }
+                h2 {
+                    text-align: center;
+                    color: #333;
+                }
+                label {
+                    margin: 10px 0 5px;
+                    display: block;
+                }
+                input[type="text"],
+                input[type="password"] {
+                    width: 100%;
+                    padding: 10px;
+                    margin: 5px 0 20px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                }
+                input[type="submit"] {
+                    width: 100%;
+                    padding: 10px;
+                    background-color: #4CAF50;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+                input[type="submit"]:hover {
+                    background-color: #45a049;
+                }
+                .error {
+                    color: red;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>Login</h2>
+                <form method="post" action="/login">
+                    <label for="username">Username:</label>
+                    <input type="text" name="username" required>
+                    <label for="password">Password:</label>
+                    <input type="password" name="password" required>
+                    <input type="submit" value="Login">
+                </form>
+            </div>
+        </body>
+    </html>
+    '''
+
+@bobo.post('/login')
+def login(username: str, password: str):
+    # Simple authentication
+    if username in users and users[username] == password:
+        return f'''
+        <html>
+            <body>
+                <h1>Welcome, {username}!</h1>
+            </body>
+        </html>
+        '''
+    else:
+        return '''
+        <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f2f2f2;
+                    }
+                    .error {
+                        color: red;
+                        text-align: center;
+                    }
+                    .container {
+                        width: 300px;
+                        margin: 100px auto;
+                        padding: 20px;
+                        background-color: white;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        border-radius: 5px;
+                    }
+                    a {
+                        text-decoration: none;
+                        color: #4CAF50;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="error">Login Failed</h1>
+                    <p>Invalid username or password.</p>
+                    <a href="/">Try again</a>
+                </div>
+            </body>
+        </html>
+        '''
+
+if __name__ == '__main__':
+    httpd = make_server('', 8080, bobo.Application(bobo_resources=__name__))
+    print("Serving on port 8080...")
+    print("http://localhost:8080")
+    httpd.serve_forever()

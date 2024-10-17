@@ -129,4 +129,6 @@ if __name__ == '__main__':
     httpd = make_server('', 8080, bobo.Application(bobo_resources=__name__))
     print("Serving on port 8080...")
     print("http://localhost:8080")
+    print("username : user")
+    print("password : password")
     httpd.serve_forever()
